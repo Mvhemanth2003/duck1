@@ -1,0 +1,9 @@
+1) Reset project created project by removing boilerplate code:
+npm run reset-project
+
+2)proj1/
+ ├── app/
+ ├── backend/
+ ├── docs/
+ ├── README.md
+ └── .gitignore

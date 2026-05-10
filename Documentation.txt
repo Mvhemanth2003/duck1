@@ -1,9 +1,112 @@
-1) Reset project created project by removing boilerplate code:
-npm run reset-project
+====================================================================
+DUCK1 MESSENGER — ANDROID DEVICE DEPLOYMENT & COMMUNICATION GUIDE
+====================================================================
 
-2)proj1/
- ├── app/
- ├── backend/
- ├── docs/
- ├── README.md
- └── .gitignore
+This guide explains how to deploy and test the Duck1 Messenger on actual Android devices. 
+
+IMPORTANT REQUIREMENTS:
+- You must use at least TWO physical Android devices to test Bluetooth. The Android emulator DOES NOT support Bluetooth LE peripheral mode.
+- All devices that need internet (Relay and Online User) must be connected to the SAME Wi-Fi network as your computer running the server.
+
+--------------------------------------------------------------------
+STEP 1: FIND YOUR COMPUTER'S LOCAL IP ADDRESS
+--------------------------------------------------------------------
+Your phones need to know where the backend server is located.
+
+1. Open a Command Prompt or PowerShell on your computer.
+2. Run the command: ipconfig
+3. Look for "IPv4 Address" under your active Wi-Fi or Ethernet adapter.
+   (It usually looks like 192.168.1.XX or 10.0.0.XX)
+4. Write this IP address down.
+
+--------------------------------------------------------------------
+STEP 2: CONFIGURE THE APP FOR YOUR NETWORK
+--------------------------------------------------------------------
+1. Open the file: duck1/frontend/src/utils/constants.ts
+2. Locate the SERVER_URL setting around line 5.
+3. Change it from the emulator default to your computer's IP:
+   
+   CHANGE THIS:
+   export const SERVER_URL = 'http://10.0.2.2:3000';
+   
+   TO THIS (using the IP you found in Step 1):
+   export const SERVER_URL = 'http://192.168.1.XX:3000'; 
+
+4. Save the file.
+
+--------------------------------------------------------------------
+STEP 3: START THE BACKEND SERVER
+--------------------------------------------------------------------
+1. Open a terminal and navigate to the backend folder:
+   cd d:\apps\Duck1\duck1\backend
+2. Start the server:
+   npm run dev
+3. You should see "🚀 Duck1 Relay Server running on port 3000" and "✅ MongoDB connected". Keep this window open.
+
+--------------------------------------------------------------------
+STEP 4: INSTALL THE APP ON PHYSICAL DEVICES
+--------------------------------------------------------------------
+You need to install the React Native app on your physical Android phones.
+
+1. Enable "Developer Options" and "USB Debugging" on your Android phones.
+2. Connect PHONE 1 via USB to your computer.
+3. Open a new terminal in the frontend folder:
+   cd d:\apps\Duck1\duck1\frontend
+4. Run the app on the phone:
+   npx react-native run-android
+5. Once the app is installed and running on PHONE 1, disconnect it.
+6. Connect PHONE 2 and repeat the command (npx react-native run-android) to install it there.
+7. (Optional) Connect PHONE 3 and install it there if you are using 3 separate devices.
+
+*Note: You can also use 2 physical phones (Offline & Relay) and 1 computer/emulator (Online), as the Online user only needs internet, not Bluetooth.*
+
+--------------------------------------------------------------------
+STEP 5: ESTABLISH THE COMMUNICATION CHAIN
+--------------------------------------------------------------------
+
+Now we will establish the connection: [Offline] ←(Bluetooth)→ [Relay] ←(Wi-Fi/Internet)→ [Online]
+
+DEVICE A (ONLINE USER):
+1. Open the Duck1 app.
+2. Select the "Online User" role and enter a name (e.g., "Charlie").
+3. The app will immediately connect to your computer's backend server.
+4. The top status bar should say "Server: Connected". It will also show "Relay: Offline" since the Relay isn't connected yet.
+
+DEVICE B (RELAY BRIDGE):
+1. Open the Duck1 app on the middleman device.
+2. Ensure both Wi-Fi and Bluetooth are turned ON.
+3. Select the "Relay Bridge" role and enter a name (e.g., "Bob").
+4. The app will connect to the backend server. The Server status will turn Green ("Connected").
+5. On DEVICE A (Online), you should see a notification that the Relay is now online.
+6. The Relay device is now waiting for an Offline user to connect via Bluetooth.
+
+DEVICE C (OFFLINE USER):
+1. Open the Duck1 app on the offline device.
+2. You can turn off Wi-Fi/Mobile Data on this device to prove it works completely offline! Ensure Bluetooth is ON.
+3. Select the "Offline User" role and enter a name (e.g., "Alice").
+4. Tap the big "Scan for Relay Device" button.
+5. Grant the Location/Nearby Devices permissions if prompted (Android requires these to scan for BLE devices).
+6. In the list of discovered devices, find your Relay phone and tap "Connect".
+7. Wait a few seconds. Both the Offline and Relay phones should show a "Bluetooth Connected" status.
+
+--------------------------------------------------------------------
+STEP 6: TESTING MESSAGE EXCHANGE
+--------------------------------------------------------------------
+
+1. FROM OFFLINE TO ONLINE:
+   - On the Offline device, type a message and hit send.
+   - The message travels over Bluetooth to the Relay device.
+   - You will see the message appear on the Relay screen with a "↪ Forwarded to Online User via Internet" note.
+   - The message arrives instantly on the Online device, marked with a blue "🔄 Relayed via Bluetooth" badge.
+
+2. FROM ONLINE TO OFFLINE:
+   - On the Online device, type a message and hit send.
+   - The message travels over Wi-Fi to the Relay device.
+   - The Relay receives it and automatically forwards it over Bluetooth to the Offline device.
+   - The Offline device receives the message.
+
+SUCCESS! You have achieved cross-protocol communication without the Offline user needing internet access.
+
+TROUBLESHOOTING:
+- "Network Error" on Relay/Online: Your phones cannot reach the backend server. Make sure the phones are on the same Wi-Fi as your PC, and double-check the IP address in constants.ts. Also, ensure your Windows Firewall is allowing traffic on port 3000.
+- Cannot find Bluetooth device: Ensure Bluetooth is enabled on both the Offline and Relay phones. Try restarting Bluetooth on both devices. Some Android phones have aggressive BLE caching.

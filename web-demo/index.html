@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Duck1 — Bluetooth-Internet Relay Messenger Demo</title>
+  <meta name="description" content="3-person communication demo: Offline user communicates via Bluetooth through a Relay to an Online user via Internet." />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.socket.io/4.8.3/socket.io.min.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-left">
+      <span class="logo">🦆</span>
+      <div>
+        <h1>Duck1</h1>
+        <p class="tagline">Bluetooth-Internet Relay Messenger</p>
+      </div>
+    </div>
+    <div class="connection-diagram">
+      <span class="diagram-node offline-node">📵 Offline</span>
+      <span class="diagram-arrow">←<span class="label">BT</span>→</span>
+      <span class="diagram-node relay-node">🔄 Relay</span>
+      <span class="diagram-arrow">←<span class="label">WiFi</span>→</span>
+      <span class="diagram-node online-node">🌐 Online</span>
+    </div>
+  </header>
+
+  <!-- 3 Panels -->
+  <main class="panels">
+    <!-- PERSON A: Offline User -->
+    <section class="panel offline-panel" id="offlinePanel">
+      <div class="panel-header">
+        <div class="panel-title-row">
+          <span class="panel-icon">📵</span>
+          <div>
+            <h2>Person A — Offline</h2>
+            <p class="panel-subtitle">No Internet • Bluetooth Only</p>
+          </div>
+        </div>
+        <div class="status-badges">
+          <span class="badge badge-bt" id="offlineBtStatus">BT: Disconnected</span>
+        </div>
+      </div>
+      <div class="panel-status-bar offline-status" id="offlineStatusBar">
+        📵 No Internet — Uses Bluetooth to reach Relay
+      </div>
+      <div class="messages-container" id="offlineMessages"></div>
+      <div class="input-bar">
+        <input type="text" id="offlineInput" placeholder="Type message (via Bluetooth)..." />
+        <button class="send-btn send-bt" id="offlineSend" disabled>▶</button>
+      </div>
+    </section>
+
+    <!-- PERSON B: Relay -->
+    <section class="panel relay-panel" id="relayPanel">
+      <div class="panel-header">
+        <div class="panel-title-row">
+          <span class="panel-icon">🔄</span>
+          <div>
+            <h2>Person B — Relay</h2>
+            <p class="panel-subtitle">Bluetooth + Internet Bridge</p>
+          </div>
+        </div>
+        <div class="status-badges">
+          <span class="badge badge-bt" id="relayBtStatus">BT: Disconnected</span>
+          <span class="badge badge-inet" id="relayInetStatus">Server: —</span>
+        </div>
+      </div>
+      <div class="panel-status-bar relay-status">
+        🔄 Bridge device — Forwards messages between Offline ↔ Online
+      </div>
+      <div class="relay-flow">
+        📵 Offline ← <strong>BT</strong> → <span class="highlight">YOU (Relay)</span> ← <strong>WiFi</strong> → 🌐 Online
+      </div>
+      <div class="messages-container" id="relayMessages"></div>
+      <div class="input-bar">
+        <input type="text" id="relayInput" placeholder="Send as Relay..." />
+        <button class="send-btn send-relay" id="relaySend">▶</button>
+      </div>
+    </section>
+
+    <!-- PERSON C: Online User -->
+    <section class="panel online-panel" id="onlinePanel">
+      <div class="panel-header">
+        <div class="panel-title-row">
+          <span class="panel-icon">🌐</span>
+          <div>
+            <h2>Person C — Online</h2>
+            <p class="panel-subtitle">Internet Connected</p>
+          </div>
+        </div>
+        <div class="status-badges">
+          <span class="badge badge-inet" id="onlineInetStatus">Server: —</span>
+          <span class="badge" id="onlineRelayStatus">Relay: —</span>
+        </div>
+      </div>
+      <div class="panel-status-bar online-status" id="onlineStatusBar">
+        🌐 Internet connected — Messages relayed to Offline user via middleman
+      </div>
+      <div class="messages-container" id="onlineMessages"></div>
+      <div class="input-bar">
+        <input type="text" id="onlineInput" placeholder="Type message (via Internet → Relay → BT)..." />
+        <button class="send-btn send-inet" id="onlineSend" disabled>▶</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Connect Controls -->
+  <footer class="controls">
+    <button class="control-btn btn-connect" id="connectAllBtn">⚡ Connect All & Start Demo</button>
+    <button class="control-btn btn-disconnect" id="disconnectBtn" disabled>🔌 Disconnect</button>
+    <div class="control-info" id="controlInfo">Click "Connect All" to simulate the full communication chain</div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
